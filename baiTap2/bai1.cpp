@@ -1,52 +1,92 @@
 #include <iostream>
 
-// 1. Tim max cua day A
+/*
+1. Tim gia tri lon nhat cua day A.
+int A[]: mang can tim GTLN.
+int n: kich thuoc cua mang.(n >= 1)
+PTTC: n == 1 (if(n == 1))
+Goi g(n) la so lan thuc hien cua PTTC trong MAX(A, n)
+=> g(n-1) la so lan thuc hien cua PTTC trong MAX(A, n-1)
+g(n) = 1 neu n = 1
+g(n) = 1 + g(n-1) neu n > 1
+------------------------------
+g(n) = g(n-1) + 1
+g(n-1) = g(n-2) + 1
+...
+g(2) = g(1) + 1
+g(1) = 1
+=> g(n) = n
+=> T(n) = O(n)
+*/
 int MAX(int A[], int n) {
-    if(n == 1) return A[0];
-    return (A[n-1] > MAX(A, n-1))? A[n-1] : MAX(A, n-1);
-}
-
-// 2. Dao nguoc day A
-void DaoNguoc(int A[], int n) {
-    if(n == 1) return;
-    int tmp = A[0];
-    for(int i = 0; i <= n-2; i++) {
-        A[i] = A[i+1];
+    if(n == 1) return A[1];
+    else {
+        return std::max(A[n], MAX(A, n-1));
     }
-    A[n-1] = tmp;
-    DaoNguoc(A, n-1);
 }
 
-// 3. Kiem tra day A co doi xung hay khong
+/*
+2. Dao nguoc day A.
+int A[]: day muon dao nguoc.
+int start_pos: chi so phan tu dau.
+int end_pos: chi so phan tu cuoi.
+PTTC: start_pos < end_pos
+Goi g(n) la so lan thuc hien cua PTTC trong loi goi ham DaoNguoc(A, 1, n)
+=> g(n-1) la so lan thuc hien cua PTTC trong loi goi ham DaoNguoc(A, 1, n-1)
+g(n) = 1 neu n <= 1, n nguyen
+g(n) = 1 + g(n-1) neu n > 1, n nguyen
+--------------------------------------
+g(n) = 1 + g(n-1)
+g(n-1) = 1 + g(n-2)
+...
+g(1) = 1
+g(-1) = 1
+...
+*/
+void DaoNguoc(int A[], int start_pos, int end_pos) {
+    if(start_pos < end_pos) {
+        std::swap(A[start_pos], A[end_pos]);
+        DaoNguoc(A, start_pos+1, end_pos-1);    
+    }
+}
+
+/*
+3. Kiem tra day A co doi xung hay khong.
+int A[]: day muon kiem tra doi xung.
+int start_pos: chi so phan tu dau.
+int end_pos: chi so phan tu cuoi.
+*/
 bool DoiXung(int A[], int start_pos, int end_pos) {
-    if(start_pos == end_pos or start_pos > end_pos) return true;
-    if(A[start_pos] != A[end_pos]) return false;
-    return DoiXung(A, start_pos+1, end_pos-1);
+    if(start_pos >= end_pos) return true;
+    else {
+        return (A[start_pos]==A[end_pos]) and DoiXung(A, start_pos+1, end_pos-1);
+    }
 }
 
-// 4. Dem so cap nghich dao cua A
+/*
+4. Dem so cap nghich dao trong A.
+int A[]: day can dem so cap nghich dao.
+int n: kich thuoc cua day.
+PTTC: n <= 1 (if(n <= 1))
+Goi g(n) la so lan thuc hien cua PTTC trong SoCapND(A, n)
+=> g(n-1) la so lan thuc hien cua PTTC trong SoCapND(A, n-1)
+g(n) = 1 neu n = 1 hoac n = 0
+g(n) = 1 + g(n-1) neu n > 1, nguyen
+-----------------------------------
+g(n) = 1 + g(n-1)
+g(n-1) = 1 + g(n-2)
+...
+g(1) = 1
+g(0) = 1
+=> g(n) = n => T(n) = O(n)
+*/
 int SoCapND(int A[], int n) {
-    if(n == 1) return 0;
-    int SND = 0;
-    for(int i = n-2; i >= 0; i--) {
-        if(A[n-1] < A[i]) SND++;
+    if(n <= 1) return 0;
+    else {
+        int dc = 0;
+        for(int i = n-1; i >= 1; i--) {
+            if(A[n] < A[i]) dc++;
+        }
+        return dc + SoCapND(A, n-1);
     }
-    return SND + SoCapND(A, n-1);
-}
-int main() {
-    int n;
-    std::cin >> n;
-    int A[n];
-    for(int i = 0; i <= n-1; i++) {
-        std::cin >> A[i];
-    }
-    // std::cout << "Max = " << MAX(A, n) << "\n";
-    // DaoNguoc(A, n);
-    // std::cout << "Sau khi dao nguoc: ";
-    // for(int i = 0; i <= n-1; i++) {
-    //     std::cout << A[i] << " ";
-    // }
-    // std::cout << (DoiXung(A, 0, n-1)? "La doi xung\n" : "La khong doi xung\n");
-    std::cout << "So cap nghich dao: " << SoCapND(A, n);
-    return 0;
 }
