@@ -27,6 +27,23 @@ void show(Node *F) {
     }
 }
 
+void push(Node *&F, int X) {
+    Node *tmp = new Node;
+    tmp->Info = X;
+    tmp->Next = F;
+    F = tmp;
+}
+
+void pop(Node *&F, int &X) {
+    if(F==NULL) std::cout << "Stack can\n";
+    else {
+        X = F->Info;
+        Node *tmp = F;
+        F = F->Next;
+        delete tmp;
+    }
+}
+
 // 1.
 // int count_lt(Node *F, int X) {
 //     if(F==NULL) return 0;
@@ -214,30 +231,47 @@ Node* address(Node *F, int X) {
 //     }
 // }
 
+// void inNguoc(Node *F) {
+//     if(F!=NULL) {
+//         Node *rF = NULL;
+//         while(F!=NULL) {
+//             insertFirst(rF, F->Info);
+//             F = F->Next;
+//         }
+//         while(rF!=NULL) {
+//             std::cout << rF->Info << " ";
+//             deleteFirst(rF);
+//         }
+//     }
+// }
+
+
 void inNguoc(Node *F) {
-    if(F!=NULL) {
-        Node *rF = NULL;
-        while(F!=NULL) {
-            insertFirst(rF, F->Info);
-            F = F->Next;
-        }
-        while(rF!=NULL) {
-            std::cout << rF->Info << " ";
-            deleteFirst(rF);
-        }
+    Node *T = NULL;
+    while(F!=NULL) {
+        push(T, F->Info);
+        F = F->Next;
+    }
+    while(T!=NULL) {
+        int X;
+        pop(T, X);
+        std::cout << X << " ";
     }
 }
 
 // 9.
 // void saoChep(Node *F, Node *&L) {
-//     if(F!=NULL) {
-//         insertLast(L, F->Info);
-//         saoChep(F->Next, L);
+//     if(F==NULL) L = NULL;
+//     else {
+//         Node *tmp = new Node;
+//         tmp->Info = F->Info;
+//         L = tmp;
+//         saoChep(F->Next, L->Next);
 //     }
 // }
 
-
 void saoChep(Node *F, Node *&L) {
+    L = NULL;
     while(F!=NULL) {
         insertLast(L, F->Info);
         F = F->Next;
@@ -245,59 +279,72 @@ void saoChep(Node *F, Node *&L) {
 }
 
 // 10.
-bool tonTai(Node *H, int X) {
-    while(H!=NULL) {
-        if(H->Info == X) return true;
-        H = H->Next;
-    }
-    return false;
-}
 // a.
 void hop(Node *F1, Node *F2, Node *&F3) {
-    while(F1!=NULL) {
-        insertLast(F3, F1->Info);
-        F1 = F1->Next;
-    }
-    while(F2!=NULL) {
-        if(!tonTai(F3, F2->Info)) insert(F3, F2->Info);
-        F2 = F2->Next;
+    if(F1==NULL) saoChep(F2, F3); 
+    else if(F2==NULL) saoChep(F1, F3);
+    else {
+        if(F1->Info == F2->Info) {
+            Node *tmp = new Node;
+            tmp->Info = F1->Info;
+            F3 = tmp;
+            hop(F1->Next, F2->Next, F3->Next);
+        }
+        else if(F1->Info < F2->Info) {
+            Node *tmp = new Node;
+            tmp->Info = F1->Info;
+            F3 = tmp;
+            hop(F1->Next, F2, F3->Next);
+        }
+        else {
+            Node *tmp = new Node;
+            tmp->Info = F2->Info;
+            F3 = tmp;
+            hop(F1, F2->Next, F3->Next);
+        }
     }
 }
 
 // b.
 void giao(Node *F1, Node *F2, Node *&F3) {
-    while(F1!=NULL) {
-        if(tonTai(F2, F1->Info)) insertLast(F3, F1->Info);
-        F1 = F1->Next;
+    if(F1==NULL or F2==NULL) F3 = NULL;
+    else {
+        if(F1->Info == F2->Info) {
+            Node *tmp = new Node;
+            tmp->Info = F1->Info;
+            F3 = tmp;
+            giao(F1->Next, F2->Next, F3->Next);
+        }
+        else if(F1->Info < F2->Info) {
+            giao(F1->Next, F2, F3);
+        }
+        else {
+            giao(F1, F2->Next, F3);
+        }
     }
 }
 
 Node *F = NULL;
-Node *L = NULL;
+Node *L;
 Node *F1 = NULL;
 Node *F2 = NULL;
-Node *F3 = NULL;
+Node *F3;
 int main() {
     int n1;
-    std::cout << "SL F1: ";
     std::cin >> n1;
-    std::cout << "F1: ";
     for(int i = 1; i <= n1; i++) {
-        int tmp;
-        std::cin >> tmp;
-        insertLast(F1, tmp);
+        int X;
+        std::cin >> X;
+        insertLast(F1, X);
     }
     int n2;
-    std::cout << "SL F2: ";
     std::cin >> n2;
-    std::cout << "F2: ";
     for(int i = 1; i <= n2; i++) {
-        int tmp;
-        std::cin >> tmp;
-        insertLast(F2, tmp);
+        int X;
+        std::cin >> X;
+        insertLast(F2, X);
     }
     giao(F1, F2, F3);
-    std::cout << "F3: ";
     show(F3);
     return 0;
 }
